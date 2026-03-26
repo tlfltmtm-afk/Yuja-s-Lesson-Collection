@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yuja's Lesson Collection</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-book-open"></i> 자료실</h2>
+            </div>
+            <ul class="nav-menu" id="subject-menu">
+                <!-- JavaScript will populate this -->
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Banner -->
+            <div class="top-banner">
+                <div class="banner-content">
+                    <h1>선생님의 귀중한 수업 자료</h1>
+                    <p>나눔과 성장이 있는 공간</p>
+                </div>
+            </div>
+
+            <div class="content-header">
+                <h2 id="current-subject-title">전체</h2>
+                <div class="grade-tabs" id="grade-tabs">
+                    <!-- JavaScript will populate this -->
+                </div>
+            </div>
+
+            <!-- Post List -->
+            <div class="post-list" id="post-list">
+                <!-- Posts will be generated here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Slideshow Modal -->
+    <div id="slideshow-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">비폭력 대화</h3>
+                <span class="close-btn" id="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="slideshow-container">
+                    <img id="current-slide" src="" alt="Slide">
+                    <button class="slide-nav prev" id="prev-slide"><i class="fas fa-chevron-left"></i></button>
+                    <button class="slide-nav next" id="next-slide"><i class="fas fa-chevron-right"></i></button>
+                    <div class="slide-counter"><span id="slide-current">1</span> / <span id="slide-total">15</span></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="audio-player">
+                    <audio id="lesson-audio" src=""></audio>
+                    <button id="play-pause-btn" class="control-btn"><i class="fas fa-play"></i> 재생</button>
+                    <div class="progress-bar-container" id="progress-container">
+                        <div class="progress-bar" id="progress-bar"></div>
+                    </div>
+                    <span id="time-display">0:00 / 0:00</span>
+                    <select id="speed-control" class="speed-select">
+                        <option value="0.5">0.5x</option>
+                        <option value="0.75">0.75x</option>
+                        <option value="1.0" selected>1.0x (기본)</option>
+                        <option value="1.25">1.25x</option>
+                        <option value="1.5">1.5x</option>
+                        <option value="2.0">2.0x</option>
+                    </select>
+                    <button id="fullscreen-btn" class="control-btn secondary" title="전체화면"><i class="fas fa-expand"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
