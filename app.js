@@ -208,11 +208,12 @@ function showPostDetail(post) {
     detailMeta.textContent = `${post.grade} · ${post.subject} · ${post.author}`;
     detailText.textContent = post.content || '';
 
-    // Remove only specific slideshow/content root, keep floatingAudio
-    const oldRoot = document.getElementById('slideshow-root');
-    if(oldRoot) oldRoot.remove();
-    const oldPreparation = mediaContainer.querySelector('div:not(.floating-audio)');
-    if(oldPreparation && oldPreparation.id !== 'slideshow-root') oldPreparation.remove();
+    // Clear previous media, except floating audio player
+    Array.from(mediaContainer.children).forEach(child => {
+        if (child.id !== 'floating-audio-player') {
+            child.remove();
+        }
+    });
     
     floatingAudio.style.display = 'none';
 

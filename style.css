@@ -264,8 +264,9 @@ body {
     border-radius: 12px;
     overflow: hidden;
     position: relative;
-    width: 100%;
-    min-height: 500px;
+    width: 60%; /* 절반 정도로 줄임 */
+    min-height: 300px; /* 높이도 조정 */
+    margin: 20px 0;
     display: flex;
     flex-direction: column;
 }
@@ -278,6 +279,7 @@ body {
     justify-content: center;
     align-items: center;
     background-color: #000;
+    min-height: 300px;
 }
 
 .slideshow-container img {
@@ -287,23 +289,19 @@ body {
 }
 
 .floating-audio {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 95%;
-    max-width: 800px;
+    position: relative; /* 본문에서는 겹치지 않게 상대 위치 */
+    margin-top: 15px;
+    width: 100%;
     z-index: 100;
     transition: all 0.3s ease;
 }
 
 .audio-player.small {
-    background-color: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(0,0,0,0.1);
-    border-radius: 30px;
-    padding: 8px 15px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background-color: #f8f9fa; /* 본문에서는 불투명하고 깔끔하게 */
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 10px 20px;
+    box-shadow: none;
     width: 100%;
 }
 
@@ -432,15 +430,18 @@ body {
 }
 
 .media-container:fullscreen .floating-audio .audio-player.small {
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
     border-radius: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    padding: 10px 20px;
 }
 
-.media-container:fullscreen + .floating-audio #fullscreen-btn {
+.media-container:fullscreen .floating-audio #fullscreen-btn {
     display: none;
 }
 
-.media-container:fullscreen + .floating-audio #close-fullscreen-btn {
+.media-container:fullscreen .floating-audio #close-fullscreen-btn {
     display: flex !important;
 }
 
