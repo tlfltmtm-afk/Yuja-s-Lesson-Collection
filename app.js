@@ -77,6 +77,7 @@ const progressBar = document.getElementById('progress-bar');
 const progressContainer = document.getElementById('progress-container');
 const speedControl = document.getElementById('speed-control');
 const fullscreenBtn = document.getElementById('fullscreen-btn');
+const closeFullscreenBtn = document.getElementById('close-fullscreen-btn');
 
 // Initialize
 function init() {
@@ -108,6 +109,9 @@ function setupEventListeners() {
     };
     if (fullscreenBtn) {
         fullscreenBtn.onclick = toggleFullscreen;
+    }
+    if (closeFullscreenBtn) {
+        closeFullscreenBtn.onclick = toggleFullscreen;
     }
 }
 
@@ -283,6 +287,7 @@ function updateProgress() {
     if(audio.duration) {
         const progressPercent = (audio.currentTime / audio.duration) * 100;
         progressBar.style.width = `${progressPercent}%`;
+        // Thumb is handled by CSS (position: absolute; right: -6px within progress-bar)
     }
 }
 

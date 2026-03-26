@@ -407,11 +407,18 @@ body {
 .media-container:fullscreen + .floating-audio {
     position: fixed;
     bottom: 30px;
-    right: 30px;
-    left: auto;
-    transform: none;
-    width: 400px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
     z-index: 2147483647; /* Top of everything */
+}
+
+.media-container:fullscreen + .floating-audio #fullscreen-btn {
+    display: none;
+}
+
+.media-container:fullscreen + .floating-audio #close-fullscreen-btn {
+    display: flex !important;
 }
 
 .progress-bar-container {
@@ -429,6 +436,20 @@ body {
     border-radius: 4px;
     width: 0%;
     pointer-events: none;
+    position: relative;
+}
+
+.progress-thumb {
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    background-color: #fff;
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
 }
 
 #time-display {
