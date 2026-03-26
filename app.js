@@ -311,11 +311,15 @@ function createMediaPlayer(fileName, type, folder) {
             <button class="control-btn mini stop-btn"><i class="fas fa-stop"></i></button>
             
             <span class="time-text current-time">00:00</span>
+            
+            <button class="seek-btn prev-10" title="10초 뒤로"><i class="fas fa-undo"></i></button>
             <div class="progress-bar-container">
                 <div class="progress-bar">
                     <div class="progress-thumb"></div>
                 </div>
             </div>
+            <button class="seek-btn next-10" title="10초 앞으로"><i class="fas fa-redo"></i></button>
+            
             <span class="time-text total-duration">00:00</span>
             
             <div class="speed-container">
@@ -349,6 +353,8 @@ function createMediaPlayer(fileName, type, folder) {
     const speedUp = playerWrapper.querySelector('.speed-btn.up');
     const speedDown = playerWrapper.querySelector('.speed-btn.down');
     const expandBtn = playerWrapper.querySelector('.expand-toggle');
+    const seekPrev = playerWrapper.querySelector('.prev-10');
+    const seekNext = playerWrapper.querySelector('.next-10');
     
     // Volume Control Elements
     const volumeBtn = playerWrapper.querySelector('.volume-btn');
@@ -456,6 +462,14 @@ function createMediaPlayer(fileName, type, folder) {
         const rect = progressContainer.getBoundingClientRect();
         const pos = (e.clientX - rect.left) / rect.width;
         media.currentTime = pos * media.duration;
+    };
+
+    seekPrev.onclick = () => {
+        media.currentTime = Math.max(0, media.currentTime - 10);
+    };
+
+    seekNext.onclick = () => {
+        media.currentTime = Math.min(media.duration, media.currentTime + 10);
     };
 
     // Speed controls
