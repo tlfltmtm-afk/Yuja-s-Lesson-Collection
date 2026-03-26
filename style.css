@@ -297,11 +297,33 @@ body {
 }
 
 .audio-player.small {
-    background-color: #f8f9fa; /* 본문에서는 불투명하고 깔끔하게 */
+    background-color: #f8f9fa;
     border: 1px solid var(--border-color);
     border-radius: 12px;
-    padding: 10px 20px;
+    padding: 12px 20px;
     box-shadow: none;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.player-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.player-filename {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    font-weight: 400;
+}
+
+.player-controls-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     width: 100%;
 }
 
@@ -321,17 +343,84 @@ body {
 }
 .expand-btn:hover { background-color: rgba(255, 255, 255, 0.4); }
 
-.control-btn.mini {
-    padding: 8px;
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    justify-content: center;
+.speed-container {
+    display: flex;
+    align-items: center;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+    height: 30px;
 }
 
-.speed-select.mini {
-    padding: 4px;
-    font-size: 0.75rem;
+.speed-btn {
+    border: none;
+    background: none;
+    padding: 0 8px;
+    cursor: pointer;
+    font-size: 0.7rem;
+    color: #666;
+    height: 100%;
+}
+
+.speed-btn:hover {
+    background: #e0e0e0;
+}
+
+.speed-input {
+    width: 40px;
+    border: none;
+    background: none;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #333;
+    outline: none;
+}
+
+.time-text {
+    font-size: 0.8rem;
+    color: #666;
+    min-width: 45px;
+    text-align: center;
+}
+
+/* Volume Control */
+.volume-control-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.volume-popup {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-direction: row; /* Horizontal as per screenshot */
+    z-index: 1001;
+}
+
+.volume-slider {
+    width: 100px;
+    cursor: pointer;
+    accent-color: var(--primary-color);
+}
+
+.mute-toggle {
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #444;
+    width: 20px;
+    display: flex;
+    justify-content: center;
 }
 
 .slide-nav {
@@ -418,23 +507,28 @@ body {
 /* Fullscreen States */
 .media-container:fullscreen .floating-audio {
     position: fixed;
-    bottom: 40px;
-    right: 40px;
+    bottom: 20px;
+    right: 20px;
     left: auto;
     transform: none;
-    width: 450px;
+    width: min(500px, 90vw);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Align to bottom right */
 }
 
-.media-container:fullscreen .expand-btn {
-    display: none;
+.media-container:fullscreen .audio-player.small {
+    display: none; /* Hide by default in fullscreen */
 }
 
-.media-container:fullscreen .floating-audio .audio-player.small {
-    background-color: rgba(255, 255, 255, 0.9);
+.media-container:fullscreen .audio-player.small.active-playing {
+    display: flex; /* Only show active one */
+    background-color: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 40px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     padding: 10px 20px;
+    width: 100%;
 }
 
 .media-container:fullscreen .floating-audio #fullscreen-btn {
