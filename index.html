@@ -55,31 +55,31 @@
                 </div>
                 <div class="detail-body">
                     <div id="detail-text" class="detail-text">본문 내용이 여기에 들어갑니다.</div>
-
+                    
                     <!-- Media Area (Conditional) -->
                     <div id="media-container" class="media-container">
                         <!-- Slideshow, Video, or Image will be injected here -->
-                    </div>
-                </div>
-
-                <!-- Floating Audio Player (Specific for Slideshow with Audio) -->
-                <div id="floating-audio-player" class="floating-audio" style="display: none;">
-                    <div class="audio-player small">
-                        <audio id="lesson-audio" src=""></audio>
-                        <button id="play-pause-btn" class="control-btn mini"><i class="fas fa-play"></i></button>
-                        <div class="progress-bar-container" id="progress-container">
-                            <div class="progress-bar" id="progress-bar">
-                                <div class="progress-thumb"></div>
+                        
+                        <!-- Audio Player (Moved INSIDE media-container to follow fullscreen) -->
+                        <div id="floating-audio-player" class="floating-audio" style="display: none;">
+                            <div class="audio-player small">
+                                <audio id="lesson-audio" src=""></audio>
+                                <button id="play-pause-btn" class="control-btn mini"><i class="fas fa-play"></i></button>
+                                <div class="progress-bar-container" id="progress-container">
+                                    <div class="progress-bar" id="progress-bar">
+                                        <div class="progress-thumb"></div>
+                                    </div>
+                                </div>
+                                <select id="speed-control" class="speed-select mini">
+                                    <option value="0.5">0.5x</option>
+                                    <option value="1.0" selected>1.0x</option>
+                                    <option value="1.5">1.5x</option>
+                                    <option value="2.0">2.0x</option>
+                                </select>
+                                <button id="fullscreen-btn" class="control-btn mini secondary" title="전체화면"><i class="fas fa-expand"></i></button>
+                                <button id="close-fullscreen-btn" class="control-btn mini secondary" style="display: none;" title="전체화면 종료"><i class="fas fa-times"></i></button>
                             </div>
                         </div>
-                        <select id="speed-control" class="speed-select mini">
-                            <option value="0.5">0.5x</option>
-                            <option value="1.0" selected>1.0x</option>
-                            <option value="1.5">1.5x</option>
-                            <option value="2.0">2.0x</option>
-                        </select>
-                        <button id="fullscreen-btn" class="control-btn mini secondary" title="전체화면"><i class="fas fa-expand"></i></button>
-                        <button id="close-fullscreen-btn" class="control-btn mini secondary" style="display: none;" title="전체화면 종료"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
             </div>

@@ -208,8 +208,12 @@ function showPostDetail(post) {
     detailMeta.textContent = `${post.grade} · ${post.subject} · ${post.author}`;
     detailText.textContent = post.content || '';
 
-    // Clear previous media
-    mediaContainer.innerHTML = '';
+    // Remove only specific slideshow/content root, keep floatingAudio
+    const oldRoot = document.getElementById('slideshow-root');
+    if(oldRoot) oldRoot.remove();
+    const oldPreparation = mediaContainer.querySelector('div:not(.floating-audio)');
+    if(oldPreparation && oldPreparation.id !== 'slideshow-root') oldPreparation.remove();
+    
     floatingAudio.style.display = 'none';
 
     if (post.type === 'slideshow') {
@@ -218,7 +222,7 @@ function showPostDetail(post) {
             setupAudio(post);
         }
     } else {
-        mediaContainer.innerHTML = '<div style="padding: 40px; color: #666;">콘텐츠 준비 중입니다.</div>';
+        mediaContainer.insertAdjacentHTML('afterbegin', '<div style="padding: 40px; color: #666;">콘텐츠 준비 중입니다.</div>');
     }
 }
 
@@ -226,13 +230,17 @@ function renderSlideshow(post) {
     currentSlideIndex = 0;
     const slidesHTML = `
         <div class="slideshow-container" id="slideshow-root">
+            <button class="expand-btn" id="slide-expand" title="전체화면"><i class="fas fa-expand"></i></button>
             <img id="current-slide" src="${post.folder}/${post.images[0]}" alt="Slide">
             <button class="slide-nav prev" id="prev-slide"><i class="fas fa-chevron-left"></i></button>
             <button class="slide-nav next" id="next-slide"><i class="fas fa-chevron-right"></i></button>
             <div class="slide-counter"><span id="slide-current">1</span> / <span id="slide-total">${post.images.length}</span></div>
         </div>
     `;
-    mediaContainer.innerHTML = slidesHTML;
+    mediaContainer.insertAdjacentHTML('afterbegin', slidesHTML);
+
+    const expandB = document.getElementById('slide-expand');
+    if(expandB) expandB.onclick = toggleFullscreen;
 
     const prevB = document.getElementById('prev-slide');
     const nextB = document.getElementById('next-slide');
