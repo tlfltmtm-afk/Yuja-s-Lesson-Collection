@@ -10,7 +10,7 @@ const grades = [
 const posts = [
     {
         id: 1,
-        title: '비폭력 대화',
+        title: '비폭력대화 PPT+오디오',
         author: '유자 선생님',
         time: '방금 전',
         subject: '생활지도',
@@ -18,6 +18,7 @@ const posts = [
         iconColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         iconClass: 'fas fa-heart',
         type: 'slideshow',
+        content: '비폭력대화 오디오 오버뷰를 재생하고 오디오 내용에 맞게 슬라이드를 넘겨서 사용하세요',
         folder: '비폭력대화',
         images: Array.from({length: 15}, (_, i) => `슬라이드${i + 1}.PNG`),
         audio: '말의_가시를_빼는_초6의_대화법.m4a'
@@ -31,7 +32,8 @@ const posts = [
         grade: '3학년',
         iconColor: 'linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)',
         iconClass: 'fas fa-book',
-        type: 'normal'
+        type: 'normal',
+        content: '국어 수업 자료입니다. 문장의 짜임을 학습합니다.'
     },
     {
         id: 3,
@@ -42,12 +44,15 @@ const posts = [
         grade: '6학년',
         iconColor: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
         iconClass: 'fas fa-film',
-        type: 'normal'
+        type: 'normal',
+        content: '영화 토이스토리를 보고 감상문을 써봅시다.'
     }
 ];
 
 let currentSubject = '전체';
 let currentGrade = '전체';
+let currentSlideIndex = 0;
+let currentPost = null;
 
 // DOM Elements
 const subjectMenuEl = document.getElementById('subject-menu');
@@ -55,27 +60,69 @@ const gradeTabsEl = document.getElementById('grade-tabs');
 const postListEl = document.getElementById('post-list');
 const currentSubjectTitleEl = document.getElementById('current-subject-title');
 
+const postListView = document.getElementById('post-list-view');
+const postDetailView = document.getElementById('post-detail-view');
+const backToListBtn = document.getElementById('back-to-list');
+
+const detailTitle = document.getElementById('detail-title');
+const detailMeta = document.getElementById('detail-meta');
+const detailText = document.getElementById('detail-text');
+const mediaContainer = document.getElementById('media-container');
+const floatingAudio = document.getElementById('floating-audio-player');
+
+// Audio Elements (Updated selectors for new HTML structure)
+const audio = document.getElementById('lesson-audio');
+const playPauseBtn = document.getElementById('play-pause-btn');
+const progressBar = document.getElementById('progress-bar');
+const progressContainer = document.getElementById('progress-container');
+const speedControl = document.getElementById('speed-control');
+const fullscreenBtn = document.getElementById('fullscreen-btn');
+
 // Initialize
 function init() {
     renderSubjects();
     renderGrades();
     renderPosts();
-    setupModal();
+    setupEventListeners();
+}
+
+function setupEventListeners() {
+    backToListBtn.onclick = () => {
+        postDetailView.style.display = 'none';
+        postListView.style.display = 'block';
+        if (audio) {
+            audio.pause();
+            audio.currentTime = 0;
+        }
+    };
+
+    // Audio Events
+    playPauseBtn.onclick = togglePlay;
+    audio.ontimeupdate = updateProgress;
+    audio.onended = () => {
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+    };
+    progressContainer.onclick = setProgress;
+    speedControl.onchange = (e) => {
+        audio.playbackRate = parseFloat(e.target.value);
+    };
+    if (fullscreenBtn) {
+        fullscreenBtn.onclick = toggleFullscreen;
+    }
 }
 
 // Render Subject Menu
 function renderSubjects() {
     subjectMenuEl.innerHTML = '';
     subjects.forEach(subject => {
-        // Reduced restriction on '전체' in sidebar to allow it if desired, 
-        // but typically '전체' is represented by a specific top-level state.
-        // The user wants '전체' to be selectable.
         const li = document.createElement('li');
         li.className = `nav-item ${subject === currentSubject ? 'active' : ''}`;
         li.innerHTML = `<i class="fas fa-folder"></i> ${subject}`;
         li.onclick = () => {
             currentSubject = subject;
-            currentGrade = '전체'; // Reset grade when subject changes
+            currentGrade = '전체';
+            postDetailView.style.display = 'none';
+            postListView.style.display = 'block';
             updateActiveStates();
             renderPosts();
         };
@@ -92,6 +139,8 @@ function renderGrades() {
         div.textContent = grade;
         div.onclick = () => {
             currentGrade = grade;
+            postDetailView.style.display = 'none';
+            postListView.style.display = 'block';
             updateActiveStates();
             renderPosts();
         };
@@ -99,30 +148,21 @@ function renderGrades() {
     });
 }
 
-// Update UI active states
 function updateActiveStates() {
-    // Subject Header
     currentSubjectTitleEl.textContent = currentSubject;
-    
-    // Sidebar
     document.querySelectorAll('.nav-item').forEach(el => {
         el.classList.toggle('active', el.textContent.trim() === currentSubject);
     });
-
-    // Grade Tabs
     document.querySelectorAll('.tab-item').forEach(el => {
         el.classList.toggle('active', el.textContent.trim() === currentGrade);
     });
 }
 
-// Render Posts
 function renderPosts() {
     postListEl.innerHTML = '';
-    
     const filteredPosts = posts.filter(post => {
         const matchSubject = currentSubject === '전체' || post.subject === currentSubject;
         const matchGrade = currentGrade === '전체' || post.grade === currentGrade;
-        
         return matchSubject && matchGrade;
     });
 
@@ -134,12 +174,8 @@ function renderPosts() {
     filteredPosts.forEach(post => {
         const card = document.createElement('div');
         card.className = 'post-card';
-        card.onclick = () => handlePostClick(post);
-        
-        // If it iconColor is light, make text black, else white (simple logic)
-        let iconTextColor = 'white';
-        if(post.iconColor.includes('#fdfbfb')) iconTextColor = '#333';
-
+        card.onclick = () => showPostDetail(post);
+        let iconTextColor = post.iconColor.includes('#fdfbfb') ? '#333' : 'white';
         card.innerHTML = `
             <div class="post-icon" style="background: ${post.iconColor}; color: ${iconTextColor}">
                 <i class="${post.iconClass}"></i>
@@ -159,160 +195,94 @@ function renderPosts() {
     });
 }
 
-// Post Click Handler
-function handlePostClick(post) {
+function showPostDetail(post) {
+    currentPost = post;
+    postListView.style.display = 'none';
+    postDetailView.style.display = 'block';
+
+    detailTitle.textContent = post.title;
+    detailMeta.textContent = `${post.grade} · ${post.subject} · ${post.author}`;
+    detailText.textContent = post.content || '';
+
+    // Clear previous media
+    mediaContainer.innerHTML = '';
+    floatingAudio.style.display = 'none';
+
     if (post.type === 'slideshow') {
-        openModal(post);
+        renderSlideshow(post);
+        if (post.audio) {
+            setupAudio(post);
+        }
     } else {
-        alert('이 게시물은 데모입니다.');
+        mediaContainer.innerHTML = '<div style="padding: 40px; color: #666;">콘텐츠 준비 중입니다.</div>';
     }
 }
 
-/* =======================================
-   Slideshow & Audio Logic
-======================================= */
-let currentSlideIndex = 0;
-let currentPost = null;
+function renderSlideshow(post) {
+    currentSlideIndex = 0;
+    const slidesHTML = `
+        <div class="slideshow-container" id="slideshow-root">
+            <img id="current-slide" src="${post.folder}/${post.images[0]}" alt="Slide">
+            <button class="slide-nav prev" id="prev-slide"><i class="fas fa-chevron-left"></i></button>
+            <button class="slide-nav next" id="next-slide"><i class="fas fa-chevron-right"></i></button>
+            <div class="slide-counter"><span id="slide-current">1</span> / <span id="slide-total">${post.images.length}</span></div>
+        </div>
+    `;
+    mediaContainer.innerHTML = slidesHTML;
 
-const modal = document.getElementById('slideshow-modal');
-const closeModalBtn = document.getElementById('close-modal');
-const slideImg = document.getElementById('current-slide');
-const prevBtn = document.getElementById('prev-slide');
-const nextBtn = document.getElementById('next-slide');
-const slideCurrentEl = document.getElementById('slide-current');
-const slideTotalEl = document.getElementById('slide-total');
-const modalTitle = document.getElementById('modal-title');
+    const prevB = document.getElementById('prev-slide');
+    const nextB = document.getElementById('next-slide');
 
-// Audio Controls
-const audio = document.getElementById('lesson-audio');
-const playPauseBtn = document.getElementById('play-pause-btn');
-const progressBar = document.getElementById('progress-bar');
-const progressContainer = document.getElementById('progress-container');
-const timeDisplay = document.getElementById('time-display');
-const speedControl = document.getElementById('speed-control');
-const fullscreenBtn = document.getElementById('fullscreen-btn');
-const modalBody = document.querySelector('.modal-body');
-
-function setupModal() {
-    closeModalBtn.onclick = closeModal;
-    
-    prevBtn.onclick = () => {
+    prevB.onclick = () => {
         if(currentSlideIndex > 0) {
             currentSlideIndex--;
             updateSlideView();
         }
     };
-    
-    nextBtn.onclick = () => {
-        if(currentPost && currentSlideIndex < currentPost.images.length - 1) {
+    nextB.onclick = () => {
+        if(currentSlideIndex < post.images.length - 1) {
             currentSlideIndex++;
             updateSlideView();
         }
     };
-
-    // Close on outside click
-    modal.onclick = (e) => {
-        if(e.target === modal) closeModal();
-    };
-
-    // Audio Evenets
-    playPauseBtn.onclick = togglePlay;
-    
-    audio.ontimeupdate = updateProgress;
-    audio.onloadedmetadata = () => {
-        timeDisplay.textContent = `0:00 / ${formatTime(audio.duration)}`;
-    };
-    audio.onended = () => {
-        playPauseBtn.innerHTML = '<i class="fas fa-play"></i> 재생';
-    };
-
-    progressContainer.onclick = setProgress;
-    
-    speedControl.onchange = (e) => {
-        audio.playbackRate = parseFloat(e.target.value);
-    };
-
-    if (fullscreenBtn) {
-        fullscreenBtn.onclick = toggleFullscreen;
-    }
-}
-
-function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-        modalBody.requestFullscreen().catch(err => {
-            alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-        });
-        fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
-    } else {
-        document.exitFullscreen();
-        fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
-    }
-}
-
-function openModal(post) {
-    currentPost = post;
-    currentSlideIndex = 0;
-    
-    modalTitle.textContent = post.title;
-    slideTotalEl.textContent = post.images.length;
-    
-    // Set Audio
-    audio.src = `${post.folder}/${post.audio}`;
-    audio.playbackRate = parseFloat(speedControl.value);
-    audio.load();
-    
     updateSlideView();
-    
-    modal.style.display = 'flex';
-    // Small delay for CSS transition
-    setTimeout(() => {
-        modal.classList.add('show');
-    }, 10);
-    
-    // reset audio UI
-    playPauseBtn.innerHTML = '<i class="fas fa-play"></i> 재생';
-    progressBar.style.width = '0%';
-}
-
-function closeModal() {
-    modal.classList.remove('show');
-    setTimeout(() => {
-        modal.style.display = 'none';
-        currentPost = null;
-        audio.pause();
-        audio.currentTime = 0;
-    }, 300); // match transition css
 }
 
 function updateSlideView() {
     if(!currentPost) return;
-    const imgFile = currentPost.images[currentSlideIndex];
-    slideImg.src = `${currentPost.folder}/${imgFile}`;
+    const slideImg = document.getElementById('current-slide');
+    const slideCurrentEl = document.getElementById('slide-current');
+    const prevB = document.getElementById('prev-slide');
+    const nextB = document.getElementById('next-slide');
+
+    slideImg.src = `${currentPost.folder}/${currentPost.images[currentSlideIndex]}`;
     slideCurrentEl.textContent = currentSlideIndex + 1;
     
-    // Button states
-    prevBtn.style.opacity = currentSlideIndex === 0 ? '0.3' : '1';
-    prevBtn.style.cursor = currentSlideIndex === 0 ? 'default' : 'pointer';
-    
-    nextBtn.style.opacity = currentSlideIndex === currentPost.images.length - 1 ? '0.3' : '1';
-    nextBtn.style.cursor = currentSlideIndex === currentPost.images.length - 1 ? 'default' : 'pointer';
+    prevB.style.opacity = currentSlideIndex === 0 ? '0.3' : '1';
+    nextB.style.opacity = currentSlideIndex === currentPost.images.length - 1 ? '0.3' : '1';
+}
+
+function setupAudio(post) {
+    audio.src = `${post.folder}/${post.audio}`;
+    audio.playbackRate = parseFloat(speedControl.value);
+    audio.load();
+    floatingAudio.style.display = 'block';
 }
 
 function togglePlay() {
     if (audio.paused) {
         audio.play();
-        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i> 일시정지';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
     } else {
         audio.pause();
-        playPauseBtn.innerHTML = '<i class="fas fa-play"></i> 재생';
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
     }
 }
 
 function updateProgress() {
     if(audio.duration) {
         const progressPercent = (audio.currentTime / audio.duration) * 100;
-    progressBar.style.width = `${progressPercent}%`;
-    timeDisplay.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+        progressBar.style.width = `${progressPercent}%`;
     }
 }
 
@@ -325,12 +295,16 @@ function setProgress(e) {
     }
 }
 
-function formatTime(seconds) {
-    if(isNaN(seconds)) return "0:00";
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        mediaContainer.requestFullscreen().catch(err => {
+            alert(`Fullscreen error: ${err.message}`);
+        });
+        fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+    } else {
+        document.exitFullscreen();
+        fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+    }
 }
 
-// Run app
 document.addEventListener('DOMContentLoaded', init);
