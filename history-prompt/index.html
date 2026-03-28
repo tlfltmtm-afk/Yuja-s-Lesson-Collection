@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>역사 대화 프롬프트 제너레이터</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+        font-family: 'Pretendard', sans-serif;
+    }
+    /* Funnel 애니메이션 효과 */
+    .step-container {
+      display: none;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .step-container.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* 스크롤바 커스텀 */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+    
+    /* Toast Animation */
+    .toast-show {
+        opacity: 1 !important;
+        transform: translate(-50%, 0) !important;
+    }
+    
+    /* Modal Animation */
+    .modal-show {
+        display: flex !important;
+        opacity: 1 !important;
+    }
+    .modal-show > div {
+        transform: scale(1) !important;
+    }
+
+    /* Modal radio selection styling */
+    input[type="radio"]:checked + div {
+        background-color: #fefce8; /* bg-yellow-50 */
+        border-color: #facc15; /* border-yellow-400 */
+        color: #854d0e; /* text-yellow-800 */
+        font-weight: 700;
+    }
+  </style>
+</head>
+<body class="bg-transparent min-h-screen flex items-center justify-center p-0 sm:p-4 text-gray-800">
+
+  <div class="bg-white sm:rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:border border-gray-100 w-full lg:max-w-3xl flex flex-col overflow-hidden h-screen sm:h-auto sm:max-h-[90vh]">
+    
+    <!-- Header (Crown Yuja) -->
+    <div class="bg-gradient-to-b from-yellow-50 to-white px-6 py-8 text-center shrink-0 border-b border-gray-100/50 relative overflow-hidden">
+      <!-- Decorative background elements -->
+      <div class="absolute top-0 left-0 w-32 h-32 bg-yellow-100 rounded-full blur-3xl opacity-50 -translate-x-1/2 -translate-y-1/2"></div>
+      <div class="absolute bottom-0 right-0 w-32 h-32 bg-orange-100 rounded-full blur-3xl opacity-50 translate-x-1/3 translate-y-1/3"></div>
+      
+      <div class="text-5xl mb-3 flex justify-center items-center gap-1 drop-shadow-sm transition-transform hover:scale-105 duration-300">
+        <span class="text-3xl relative top-[-10px] transform -rotate-12">👑</span>
+        <span class="text-[54px] z-10">🍋</span>
+        <span class="text-2xl relative top-[-6px] right-[10px] transform rotate-12">🍃</span>
+      </div>
+      <h1 class="text-2xl font-bold tracking-tight text-gray-800 mb-2">안녕! 나는 역사 마스터 유자야!</h1>
+      <p class="text-[15px] font-medium text-gray-500">누구와 어떤 역사 이야기를 나누고 싶니? 차근차근 골라봐!</p>
+    </div>
+
+    <!-- Funnel Area -->
+    <div id="funnel-container" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-8 scroll-smooth">
+      
+      <!-- Step 1 -->
+      <div id="step-1" class="step-container active">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+            <span class="flex items-center justify-center bg-yellow-400 text-yellow-900 w-6 h-6 rounded-full text-sm font-bold shadow-sm">1</span> 
+            학년을 선택해 주세요
+          </h2>
+          <button onclick="skipStep(1)" class="text-[13px] text-gray-400 hover:text-gray-600 font-medium transition-colors">건너뛰기</button>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="grid-step-1"></div>
+      </div>
+
+      <!-- Step 2 -->
+      <div id="step-2" class="step-container">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+            <span class="flex items-center justify-center bg-yellow-400 text-yellow-900 w-6 h-6 rounded-full text-sm font-bold shadow-sm">2</span> 
+            어떤 역사가 궁금한가요?
+          </h2>
+          <button onclick="skipStep(2)" class="text-[13px] text-gray-400 hover:text-gray-600 font-medium transition-colors">건너뛰기</button>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5" id="grid-step-2"></div>
+      </div>
+
+      <!-- Step 3 -->
+      <div id="step-3" class="step-container">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+            <span class="flex items-center justify-center bg-yellow-400 text-yellow-900 w-6 h-6 rounded-full text-sm font-bold shadow-sm">3</span> 
+            구체적으로 무엇을 알아볼까요?
+          </h2>
+          <button onclick="skipStep(3)" class="text-[13px] text-gray-400 hover:text-gray-600 font-medium transition-colors">건너뛰기</button>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="grid-step-3"></div>
+      </div>
+
+      <!-- Step 4 -->
+      <div id="step-4" class="step-container relative">
+        <div class="pb-4 pt-1 mb-2">
+          <div class="flex justify-between items-center mb-3">
+            <h2 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+              <span class="flex items-center justify-center bg-yellow-400 text-yellow-900 w-6 h-6 rounded-full text-sm font-bold shadow-sm">4</span> 
+              주제를 선택해 주세요
+            </h2>
+            <button onclick="skipStep(4)" class="text-[13px] text-gray-400 hover:text-gray-600 font-medium transition-colors">건너뛰기</button>
+          </div>
+          <div class="flex gap-2">
+            <div class="relative flex-1 group">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400 transition-colors group-focus-within:text-yellow-500">🔍</span>
+              <input type="text" id="search-4" onkeyup="filterList(4)" placeholder="검색어를 입력하세요..." class="w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl text-[15px] focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition-all shadow-sm">
+            </div>
+            <button onclick="openModal(4)" class="shrink-0 bg-gray-800 text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-700 active:scale-95 transition-all flex items-center gap-1.5 shadow-sm">
+              ✍️ 직접입력
+            </button>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5" id="grid-step-4"></div>
+      </div>
+
+      <!-- Step 5 -->
+      <div id="step-5" class="step-container relative">
+        <div class="pb-4 pt-1 mb-2">
+          <div class="flex justify-between items-center mb-3">
+            <h2 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+              <span class="flex items-center justify-center bg-yellow-400 text-yellow-900 w-6 h-6 rounded-full text-sm font-bold shadow-sm">5</span> 
+              상세 항목과 역할을 선택해 주세요
+            </h2>
+            <button onclick="skipStep(5)" class="text-[13px] text-gray-400 hover:text-gray-600 font-medium transition-colors">건너뛰기</button>
+          </div>
+          <div class="flex gap-2">
+            <div class="relative flex-1 group">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400 transition-colors group-focus-within:text-yellow-500">🔍</span>
+              <input type="text" id="search-5" onkeyup="filterList(5)" placeholder="검색어를 입력하세요..." class="w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl text-[15px] focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition-all shadow-sm">
+            </div>
+            <button onclick="openModal(5)" class="shrink-0 bg-gray-800 text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-700 active:scale-95 transition-all flex items-center gap-1.5 shadow-sm">
+              ✍️ 직접입력
+            </button>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 gap-2.5" id="grid-step-5"></div>
+      </div>
+
+      <!-- Step 6: Conversation Style -->
+      <div id="step-6" class="step-container">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+            <span class="flex items-center justify-center bg-yellow-400 text-yellow-900 w-6 h-6 rounded-full text-sm font-bold shadow-sm">6</span> 
+            대화 스타일을 선택해 주세요
+          </h2>
+          <button onclick="skipStep(6)" class="text-[13px] text-gray-400 hover:text-gray-600 font-medium transition-colors">건너뛰기</button>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="grid-step-6"></div>
+      </div>
+
+    </div>
+
+    <!-- Footer Action Area -->
+    <div class="p-4 sm:p-5 border-t border-gray-100 bg-gray-50/50 flex flex-col gap-3 shrink-0 z-20">
+      
+      <!-- Selection Summary Block -->
+      <div id="selection-summary" class="bg-white rounded-xl p-4 border border-yellow-200 shadow-sm text-sm text-gray-700 hidden transition-all">
+        <div class="font-bold text-yellow-800 mb-2 flex items-center gap-1.5"><span class="text-base">📝</span> 현재 선택 요약</div>
+        <div id="summary-content" class="leading-relaxed whitespace-pre-line text-gray-600"></div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-center gap-2.5 w-full">
+        <select id="ai-selector" class="w-full sm:w-[160px] border border-gray-200 rounded-xl px-4 py-3.5 text-[15px] font-medium focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 bg-white shadow-sm cursor-pointer transition-all">
+          <option value="chatgpt">ChatGPT로 열기</option>
+          <option value="gemini">Gemini로 열기</option>
+        </select>
+        <button onclick="generatePrompt()" class="w-full flex-1 bg-yellow-400 hover:bg-yellow-500 text-yellow-950 font-bold py-3.5 px-6 rounded-xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[16px] flex justify-center items-center gap-2.5">
+          <span class="text-xl">🚀</span> AI 대화 시작하기
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- custom modal -->
+  <div id="custom-modal" class="fixed inset-0 bg-gray-900/40 z-50 flex items-center justify-center backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 w-[90%] max-w-sm transform scale-95 transition-transform duration-300">
+      <h3 id="modal-title" class="text-lg font-bold mb-4 text-gray-800 flex items-center gap-2">
+        <span>✍️</span> 직접 입력해주세요
+      </h3>
+      <input type="text" id="modal-input" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 focus:outline-none mb-4 text-[15px] shadow-sm transition-all" placeholder="내용을 입력하세요..." />
+      
+      <div id="modal-role-options" class="flex gap-2 mb-5 hidden">
+        <label class="flex-1 cursor-pointer">
+          <input type="radio" name="modal_role" value="self" checked class="hidden" onchange="updateModalRadioStyles()">
+          <div class="border border-gray-200 rounded-xl p-3 text-center text-[13px] text-gray-600 transition-colors bg-yellow-50 border-yellow-400 text-yellow-800 font-bold modal-radio-div">본인 빙의</div>
+        </label>
+        <label class="flex-1 cursor-pointer">
+          <input type="radio" name="modal_role" value="witness" class="hidden" onchange="updateModalRadioStyles()">
+          <div class="border border-gray-200 rounded-xl p-3 text-center text-[13px] text-gray-600 transition-colors bg-white modal-radio-div">지인(목격자)</div>
+        </label>
+      </div>
+
+      <div class="flex justify-end gap-2.5">
+        <button onclick="closeModal()" class="px-5 py-2.5 rounded-xl text-[15px] font-medium text-gray-500 hover:bg-gray-100 active:scale-95 transition-all">취소</button>
+        <button onclick="confirmModal()" class="px-5 py-2.5 rounded-xl text-[15px] bg-gray-900 hover:bg-gray-800 text-white font-medium active:scale-95 transition-all shadow-sm">입력 확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-[60] bg-gray-900/95 backdrop-blur text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center gap-3 transition-all duration-400 opacity-0 pointer-events-none -translate-y-[20px]">
+    <span class="text-yellow-400 text-xl">✨</span>
+    <span id="toast-message" class="text-[15px] font-medium tracking-tight whitespace-nowrap">프롬프트가 클립보드에 복사되었습니다!</span>
+  </div>
+
+  <script>
+    // --- 방대한 역사 백과사전 데이터베이스 ---
+    const historyData = {
+      "한국사": {
+        "시대": [
+          "선사시대(구석기~철기)", "고조선", "부여/고구려/옥저/동예/삼한", "삼국시대(고구려, 백제, 신라)", "가야", "남북국시대(통일신라, 발해)", "후삼국시대", "고려시대", "조선 전기", "조선 후기", "개항기/대한제국", "일제강점기", "현대(광복 이후)"
+        ],
+        "국가": [
+          "고조선", "부여", "고구려", "백제", "신라", "가야", "통일신라", "발해", "고려", "조선", "대한제국", "대한민국", "조선민주주의인민공화국"
+        ],
+        "인물": {
+          "고조선/삼국/가야": ["단군왕검", "광개토대왕", "장수왕", "주몽(동명성왕)", "을지문덕", "연개소문", "근초고왕", "계백", "온조", "진흥왕", "김유신", "무열왕", "문무왕", "선덕여왕", "박혁거세", "이차돈", "수로왕", "우륵", "관창", "왕산악"],
+          "남북국/고려": ["대조영", "장보고", "최치원", "신문왕", "원효", "의상", "궁예", "견훤", "왕건(태조)", "광종", "성종", "서희", "강감찬", "최충헌", "김부식", "일연", "공민왕", "최영", "최무선", "문익점", "정몽주", "이규보", "묘청", "의천", "지눌"],
+          "조선": ["이순신", "세종대왕", "이성계(태조)", "정도전", "이방원(태종)", "장영실", "정조", "영조", "율곡 이이", "퇴계 이황", "정약용", "신사임당", "흥선대원군", "광해군", "허균", "허난설헌", "김정호", "전봉준", "명성황후", "황진이", "김홍도", "신윤복", "송시열", "박지원", "박제가"],
+          "개항기/일제강점기": ["김구", "안중근", "유관순", "윤봉길", "이봉창", "안창호", "신채호", "김좌진", "홍범도", "주시경", "방정환", "이상재", "이회영", "박은식", "한용운", "윤동주", "이육사", "김원봉", "여운형", "최남선"],
+          "현대": ["이승만", "김대중", "김영삼", "노무현", "박정희", "전태일", "백범 김구(해방공간)", "이중섭", "백남준"]
+        },
+        "사건": [
+          "살수대첩", "안시성 전투", "황산벌 전투", "매소성/기벌포 전투", "귀주대첩", "묘청의 서경 천도 운동", "무신정변", "팔만대장경 조판", "위화도 회군", "훈민정음 창제", "임진왜란", "한산도 대첩", "명량해전", "병자호란", "병인양요", "신미양요", "강화도 조약", "갑신정변", "동학 농민 운동", "갑오개혁", "을미사변", "아관파천", "독립협회 창립", "을사늑약", "3.1 운동", "봉오동 전투", "청산리 대첩", "광주 학생 항일 운동", "윤봉길 상하이 의거", "8.15 광복", "제주 4.3 사건", "6.25 전쟁", "인천 상륙 작전", "4.19 혁명", "5.16 군사 정변", "5.18 민주화 운동", "6월 민주 항쟁", "IMF 외환 위기"
+        ]
+      },
+      "세계사": {
+        "시대": [
+          "고대(문명의 발생~서로마 멸망)", "중세(게르만 이동~비잔티움 멸망)", "근세(르네상스~절대왕정)", "근대(시민혁명~제1차 세계대전 전)", "현대(양차 세계대전~현재)"
+        ],
+        "국가": [
+          "이집트 제국", "메소포타미아(수메르/바빌로니아)", "고대 그리스(아테네/스파르타)", "로마 제국", "페르시아 제국", "이슬람 제국(우마이야/아바스)", "몽골 제국", "프랑크 왕국", "신성 로마 제국", "영국(대영제국)", "프랑스", "스페인 제국", "오스만 제국", "청나라", "명나라", "당나라", "한나라", "미국", "러시아 제국", "소련"
+        ],
+        "인물": {
+          "고대/중세": ["알렉산드로스 대왕", "율리우스 카이사르", "진시황제", "클레오파트라", "함무라비 왕", "람세스 2세", "아우구스투스", "콘스탄티누스 대제", "소크라테스", "플라톤", "아리스토텔레스", "한무제", "당태종", "무측천", "샤를마뉴 대제", "칭기즈 칸", "쿠빌라이 칸", "살라딘", "잔 다르크", "요하네스 구텐베르크", "마르코 폴로", "토마스 아퀴나스"],
+          "근세/근대": ["레오나르도 다 빈치", "크리스토퍼 콜럼버스", "마르틴 루터", "갈릴레오 갈릴레이", "엘리자베스 1세", "루이 14세", "나폴레옹 보나파르트", "조지 워싱턴", "에이브러햄 링컨", "카를 마르크스", "찰스 다윈", "토머스 에디슨", "마리 퀴리", "니콜라 테슬라", "아이작 뉴턴", "빅토리아 여왕", "표트르 대제", "막시밀리앙 로베스피에르", "오토 폰 비스마르크", "메이지 천황"],
+          "현대": ["알베르트 아인슈타인", "윈스턴 처칠", "프랭클린 D. 루스벨트", "아돌프 히틀러", "이오시프 스탈린", "마하트마 간디", "넬슨 만델라", "마틴 루터 킹 주니어", "안네 프랑크", "체 게바라", "존 F. 케네디", "마오쩌둥", "호찌민", "미하일 고르바초프", "엘리자베스 2세"]
+        },
+        "사건": [
+          "4대 문명 발생", "페르시아 전쟁", "펠로폰네소스 전쟁", "포에니 전쟁", "십자군 전쟁", "몽골의 유라시아 정복", "흑사병 유행", "백년 전쟁", "동로마(비잔티움) 제국 멸망", "르네상스", "종교 개혁", "신항로 개척", "명예 혁명", "미국 독립 혁명", "프랑스 혁명", "산업 혁명", "나폴레옹 전쟁", "아편 전쟁", "미국 남북 전쟁", "메이지 유신", "제1차 세계 대전", "러시아 혁명", "대공황", "제2차 세계 대전", "노르망디 상륙 작전", "홀로코스트", "국제연합(UN) 창설", "냉전 시대 시작", "베트남 전쟁", "인류 최초 달 착륙", "베를린 장벽 붕괴", "소련 해체", "9.11 테러"
+        ]
+      }
+    };
+
+    // --- State 관리 ---
+    const state = {
+      grade: null,
+      subject: null,
+      category: null,
+      detail1: null,
+      detail2: null,
+      role: null,
+      convStyle: null
+    };
+
+    const config = {
+      grades: ["초1~2", "초3~4", "초5~6", "중등", "고등", "성인"],
+      subjects: ["한국사", "세계사"],
+      categories: ["시대", "국가", "인물", "사건"],
+      convStyles: ["이야기꾼", "뉴스기자", "백과사전", "선생님", "개그맨"]
+    };
+
+    // 버튼 렌더링
+    window.onload = () => {
+      renderButtons('grid-step-1', config.grades, (val) => selectStep(1, 'grade', val));
+      renderButtons('grid-step-2', config.subjects, (val) => selectStep(2, 'subject', val));
+      renderButtons('grid-step-3', config.categories, (val) => selectStep(3, 'category', val));
+      renderButtons('grid-step-6', config.convStyles, (val) => selectStep(6, 'convStyle', val));
+      
+      // Step 6 직접 입력 버튼 추가
+      const step6Grid = document.getElementById('grid-step-6');
+      const manualBtn = document.createElement('button');
+      manualBtn.className = "item-btn bg-gray-800 text-white rounded-xl p-3.5 text-[14px] sm:text-[15px] font-bold hover:bg-gray-700 active:scale-95 shadow-sm";
+      manualBtn.innerHTML = "✍️ 직접입력";
+      manualBtn.onclick = () => openModal(6);
+      step6Grid.appendChild(manualBtn);
+    };
+
+    function renderButtons(containerId, items, onClickFunc) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = items.map(item => `
+        <button class="item-btn bg-white border border-gray-200 rounded-xl p-3.5 text-[14px] sm:text-[15px] font-medium text-gray-700 hover:bg-yellow-50 hover:border-yellow-400 hover:text-yellow-800 transition-all active:scale-95 focus:ring-2 focus:ring-yellow-400/50 focus:outline-none shadow-sm"
+                onclick="(${onClickFunc})('${item}')">
+          ${item}
+        </button>
+      `).join('');
+    }
+
+    // 단계 선택 로직
+    function selectStep(stepNum, key, value, roleVal = null) {
+      state[key] = value;
+      if(roleVal) state.role = roleVal;
+      
+      if(key !== 'detail2' || !roleVal) {
+          highlightSelection(`grid-step-${stepNum}`, value);
+      } else {
+          highlightCardSelection(`grid-step-${stepNum}`, value, roleVal);
+      }
+      
+      // 하위 스텝 꼬임 방지
+      if (stepNum === 2) { state.category = state.detail1 = state.detail2 = state.role = state.convStyle = null; hideStepsFrom(3); }
+      if (stepNum === 3) { state.detail1 = state.detail2 = state.role = state.convStyle = null; hideStepsFrom(4); }
+      if (stepNum === 4) { state.detail2 = state.role = state.convStyle = null; hideStepsFrom(5); }
+      if (stepNum === 5) { state.convStyle = null; hideStepsFrom(6); }
+
+      showNextStep(stepNum);
+      updateSummary();
+    }
+
+    function skipStep(stepNum) {
+      const keys = ['grade', 'subject', 'category', 'detail1', 'detail2', 'convStyle'];
+      state[keys[stepNum-1]] = '미정';
+      clearSelection(`grid-step-${stepNum}`);
+      if(stepNum === 5) state.role = '미정';
+      
+      if (stepNum === 2 || stepNum === 3) {
+          state.detail1 = state.detail2 = state.role = state.convStyle = '미정';
+          hideStepsFrom(stepNum + 1);
+          updateSummary();
+          return;
+      }
+      if (stepNum === 4) {
+          state.detail2 = state.role = state.convStyle = '미정';
+          hideStepsFrom(5);
+      }
+      if (stepNum === 5) {
+          state.convStyle = '미정';
+          hideStepsFrom(6);
+      }
+      showNextStep(stepNum);
+      updateSummary();
+    }
+
+    function showNextStep(currentStep) {
+      const nextStep = currentStep + 1;
+      
+      if (currentStep === 3) {
+        if(!state.subject || !state.category || state.subject === '미정' || state.category === '미정') return;
+        renderStep4();
+      }
+
+      if (currentStep === 4 && state.category === '인물' && state.detail1 !== '미정') {
+        renderStep5();
+      } else if (currentStep === 4 && state.category !== '인물') {
+          // 인물이 아니면 5단계를 거쳐 6단계로 바로 보낼지 판단
+          // 보통 4단계 선택 후 5단계를 건너뛰고 6단계로 가거나 5단계 리스트를 보여줘야함
+          renderStep5();
+      }
+
+      const nextEl = document.getElementById(`step-${nextStep}`);
+      if (nextEl) {
+          // 4단계에서 인물이 아닐 때 5단계를 보여줘야 하는지 로직
+          if(currentStep === 4 && state.category !== '인물') {
+              // 4단계 선택시 5단계 활성화
+              nextEl.classList.add('active');
+          } else if (currentStep === 4 && state.category === '인물') {
+              nextEl.classList.add('active');
+          } else if (currentStep !== 4) {
+              nextEl.classList.add('active');
+          }
+
+          setTimeout(() => {
+            document.getElementById('funnel-container').scrollTo({
+              top: nextEl.offsetTop - 20,
+              behavior: 'smooth'
+            });
+          }, 150);
+      }
+    }
+
+    function hideStepsFrom(stepNum) {
+      for (let i = stepNum; i <= 6; i++) {
+        const el = document.getElementById(`step-${i}`);
+        if (el) {
+          el.classList.remove('active');
+          if(i === 4 || i === 5) {
+             const searchEl = document.getElementById(`search-${i}`);
+             if(searchEl) searchEl.value = ''; 
+          }
+        }
+      }
+    }
+
+    function highlightSelection(containerId, value) {
+      const container = document.getElementById(containerId);
+      if(!container) return;
+      const btns = container.querySelectorAll('.item-btn');
+      btns.forEach(btn => {
+        if (btn.innerText === value) {
+          btn.classList.add('bg-yellow-50', 'border-yellow-400', 'text-yellow-800', 'ring-2', 'ring-yellow-400/20');
+        } else {
+          btn.classList.remove('bg-yellow-50', 'border-yellow-400', 'text-yellow-800', 'ring-2', 'ring-yellow-400/20');
+        }
+      });
+    }
+
+    function clearSelection(containerId) {
+      const container = document.getElementById(containerId);
+      if(!container) return;
+      const btns = container.querySelectorAll('.item-btn, .item-card');
+      btns.forEach(btn => {
+        if(btn.classList.contains('item-btn')){
+           btn.classList.remove('bg-yellow-50', 'border-yellow-400', 'text-yellow-800', 'ring-2', 'ring-yellow-400/20');
+        } else {
+           btn.classList.remove('border-yellow-400', 'ring-2', 'ring-yellow-400/20', 'bg-yellow-50/30');
+           const sb = btn.querySelector('.self-btn');
+           const wb = btn.querySelector('.witness-btn');
+           if(sb) { sb.classList.remove('bg-yellow-400', 'text-yellow-900'); sb.classList.add('bg-gray-100', 'text-gray-600'); }
+           if(wb) { wb.classList.remove('bg-yellow-400', 'text-yellow-900'); wb.classList.add('bg-gray-100', 'text-gray-600'); }
+        }
+      });
+    }
+
+    function highlightCardSelection(containerId, value, roleVal) {
+      const container = document.getElementById(containerId);
+      if(!container) return;
+      const cards = container.querySelectorAll('.item-card');
+      cards.forEach(card => {
+        const name = card.getAttribute('data-val');
+        const selfBtn = card.querySelector('.self-btn');
+        const witnessBtn = card.querySelector('.witness-btn');
+        
+        card.classList.remove('border-yellow-400', 'ring-2', 'ring-yellow-400/20', 'bg-yellow-50/30');
+        selfBtn.classList.remove('bg-yellow-400', 'text-yellow-900');
+        selfBtn.classList.add('bg-gray-100', 'text-gray-600');
+        witnessBtn.classList.remove('bg-yellow-400', 'text-yellow-900');
+        witnessBtn.classList.add('bg-gray-100', 'text-gray-600');
+
+        if (name === value) {
+          card.classList.add('border-yellow-400', 'ring-2', 'ring-yellow-400/20', 'bg-yellow-50/30');
+          if (roleVal === 'self') {
+             selfBtn.classList.remove('bg-gray-100', 'text-gray-600');
+             selfBtn.classList.add('bg-yellow-400', 'text-yellow-900');
+          } else if (roleVal === 'witness') {
+             witnessBtn.classList.remove('bg-gray-100', 'text-gray-600');
+             witnessBtn.classList.add('bg-yellow-400', 'text-yellow-900');
+          }
+        }
+      });
+    }
+
+    // 동적 리스트
+    function renderStep4() {
+      const data = historyData[state.subject][state.category];
+      let items = Array.isArray(data) ? data : Object.keys(data);
+      renderButtons('grid-step-4', items, (val) => selectStep(4, 'detail1', val));
+    }
+
+    function renderStep5() {
+      const container = document.getElementById('grid-step-5');
+      if(state.category === '인물') {
+          const data = historyData[state.subject]['인물'][state.detail1];
+          if(!data) return;
+          container.innerHTML = data.map(item => `
+            <div class="item-card bg-white border border-gray-200 rounded-xl p-2 sm:p-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 shadow-sm transition-all" data-val="${item}">
+               <div class="font-bold text-gray-800 text-[14px] sm:text-[15px] pl-1 break-keep item-name">${item}</div>
+               <div class="flex gap-1.5 w-full sm:w-auto shrink-0">
+                  <button onclick="selectStep(5, 'detail2', '${item}', 'self')" class="role-btn self-btn flex-1 sm:flex-none px-3 py-2 bg-gray-100 text-gray-600 rounded-lg text-[13px] font-bold hover:bg-yellow-50 hover:text-yellow-700 active:scale-95 transition-all">${item} 본인</button>
+                  <button onclick="selectStep(5, 'detail2', '${item}', 'witness')" class="role-btn witness-btn flex-1 sm:flex-none px-3 py-2 bg-gray-100 text-gray-600 rounded-lg text-[13px] font-bold hover:bg-yellow-50 hover:text-yellow-700 active:scale-95 transition-all">지인</button>
+               </div>
+            </div>
+          `).join('');
+      } else {
+          const data = historyData[state.subject][state.category];
+          // 주제가 배열인 경우(시대, 국가, 사건) detail1 선택 후 추가 상세가 없을 수 있음
+          if(Array.isArray(data)) {
+              // 이미 4단계에서 선택했으므로 5단계는 '추가 상세 없음' 등으로 처리하거나 건너뜀
+              container.innerHTML = '<div class="col-span-full p-4 text-center text-gray-400 text-sm">상세 항목이 없습니다. 바로 다음 단계를 확인하세요.</div>';
+          } else {
+             // 인물의 경우 이미 위에서 처리함
+          }
+      }
+    }
+
+    function filterList(stepNum) {
+      const searchStr = document.getElementById(`search-${stepNum}`).value.trim().toLowerCase();
+      const container = document.getElementById(`grid-step-${stepNum}`);
+      const items = container.querySelectorAll('.item-btn, .item-card');
+      items.forEach(btn => {
+        const textEl = btn.classList.contains('item-card') ? btn.querySelector('.item-name') : btn;
+        const btnText = textEl.innerText.replace(/\s+/g, "").toLowerCase();
+        const searchQuery = searchStr.replace(/\s+/g, "");
+        if (btnText.includes(searchQuery)) {
+          btn.style.display = btn.classList.contains('item-card') ? 'flex' : 'block';
+        } else {
+          btn.style.display = 'none';
+        }
+      });
+    }
+
+    // Modal 관리
+    let currentModalStep = null;
+    function openModal(stepNum) {
+      currentModalStep = stepNum;
+      const modal = document.getElementById('custom-modal');
+      const input = document.getElementById('modal-input');
+      const roleOptions = document.getElementById('modal-role-options');
+      input.value = '';
+      
+      if (stepNum === 5 && state.category === '인물') {
+          roleOptions.classList.remove('hidden');
+          document.querySelector('input[name="modal_role"][value="self"]').checked = true;
+          updateModalRadioStyles();
+      } else {
+          roleOptions.classList.add('hidden');
+      }
+
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      modal.classList.add('modal-show');
+      setTimeout(() => input.focus(), 100);
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('custom-modal');
+      modal.classList.remove('modal-show');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      currentModalStep = null;
+    }
+
+    function updateModalRadioStyles() {
+      const radios = document.querySelectorAll('input[name="modal_role"]');
+      radios.forEach(radio => {
+        const div = radio.nextElementSibling;
+        if (radio.checked) {
+          div.className = "border border-yellow-400 rounded-xl p-3 text-center text-[13px] transition-colors bg-yellow-50 text-yellow-800 font-bold modal-radio-div";
+        } else {
+          div.className = "border border-gray-200 rounded-xl p-3 text-center text-[13px] text-gray-600 transition-colors bg-white modal-radio-div";
+        }
+      });
+    }
+
+    function confirmModal() {
+      const input = document.getElementById('modal-input').value.trim();
+      if (input !== "") {
+        const key = currentModalStep === 4 ? 'detail1' : (currentModalStep === 5 ? 'detail2' : 'convStyle');
+        let roleVal = null;
+        if(currentModalStep === 5 && state.category === '인물') {
+            roleVal = document.querySelector('input[name="modal_role"]:checked').value;
+        }
+        selectStep(currentModalStep, key, input, roleVal);
+        closeModal();
+      }
+    }
+    
+    document.getElementById('modal-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') confirmModal(); });
+
+    // Summary Update
+    function updateSummary() {
+      const summaryBox = document.getElementById('selection-summary');
+      const content = document.getElementById('summary-content');
+      const arr = [];
+      if(state.grade) arr.push(`학년: <span class="text-gray-900 font-medium">${state.grade}</span>`);
+      if(state.subject) arr.push(`과목: <span class="text-gray-900 font-medium">${state.subject}</span>`);
+      if(state.category) arr.push(`분류: <span class="text-gray-900 font-medium">${state.category}</span>`);
+      if(state.detail1) arr.push(`주제: <span class="text-gray-900 font-medium">${state.detail1}</span>`);
+      if(state.detail2 && state.detail2 !== '미정') arr.push(`상세: <span class="text-gray-900 font-medium">${state.detail2}</span>`);
+      if(state.role && state.role !== '미정') {
+          const roleTxt = state.role === 'self' ? '본인' : '지인(목격자)';
+          arr.push(`역할: <span class="text-yellow-700 font-bold">${roleTxt}</span>`);
+      }
+      if(state.convStyle) arr.push(`스타일: <span class="text-blue-600 font-bold">${state.convStyle}</span>`);
+
+      if(arr.length > 0) {
+        content.innerHTML = arr.join(' &nbsp;/&nbsp; ');
+        summaryBox.classList.remove('hidden');
+      } else {
+        summaryBox.classList.add('hidden');
+      }
+    }
+
+    // Toast UI
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-message').innerText = message;
+      toast.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-[20px]');
+      toast.classList.add('toast-show');
+      setTimeout(() => {
+        toast.classList.remove('toast-show');
+        toast.classList.add('opacity-0', 'pointer-events-none', '-translate-y-[20px]');
+      }, 3000);
+    }
+
+    function generatePrompt() {
+      const g = state.grade || '미정';
+      const s = state.subject || '미정';
+      const c = state.category || '미정';
+      const st = state.convStyle || '미정';
+      
+      let detail = '미정';
+      if (c === '인물') {
+        detail = (state.detail2 && state.detail2 !== '미정') ? state.detail2 : (state.detail1 || '미정');
+      } else {
+        detail = (state.detail2 && state.detail2 !== '미정') ? state.detail2 : (state.detail1 || '미정');
+      }
+
+      const hasUndecided = [g, s, c, detail].includes('미정');
+
+      let promptText = `너는 **${g}** 수준의 눈높이에 맞춰 설명해 주는 친절하고 유머러스한 역사 선생님이야.\n`;
+      promptText += `현재 나의 선택: **[과목: ${s}], [분류: ${c}], [주제: ${detail}], [대화스타일: ${st}]**\n\n`;
+      promptText += `### 📜 [핵동 지침 - 필수 실드]\n`;
+      promptText += `1. **절대 금기 사항**: 너는 철저히 역사적 사실에만 근거하여 답변해야 해. 역사를 배우는 교구이므로 **허구의 픽션이나 상상을 가미해서는 절대 안 돼.**\n`;
+      promptText += `2. **대화 스타일**: 사용자 선택에 따라 **'${st}'**의 말투와 문체를 유지하며 답변해 줘.\n`;
+
+      if (hasUndecided) {
+        promptText += `3. 내가 선택한 항목 중 일부가 아직 '미정'이므로:\n`;
+        promptText += `   - 역사 인물로 바로 빙의하지 말고, 선택된 범위 내에서 재미있는 예시를 3~4개 들어줘.\n`;
+        promptText += `   - 앞으로 무엇을 알아보고 싶은지 객관식으로 재미있게 질문해 줘.\n`;
+      } else {
+        promptText += `3. 내가 알아보고 싶은 내용이 구체적으로 정해졌으므로:\n`;
+        if (state.category === '인물' && state.role === 'self') {
+            promptText += `   - **즉시 해당 인물 본인(${detail})으로 1인칭 빙의해서**, 생생하고 몰입감 있게 첫인사를 건네며 대화를 시작해.\n`;
+        } else if (state.category === '인물' && state.role === 'witness') {
+            promptText += `   - **즉시 해당 인물(${detail})과 가까운 동시대의 지인/목격자로 1인칭 빙의해서**, 생생하고 몰입감 있게 첫인사를 건네며 대화를 시작해.\n`;
+        } else {
+            promptText += `   - **즉시 해당 시대의 인물이나 사건의 핵심 목격자로 1인칭 빙의해서**, 생생하고 몰입감 있게 첫인사를 건네며 대화를 시작해.\n`;
+        }
+      }
+
+      promptText += `4. 매 답변의 끝에는 항상 다음과 같이 질문해 줘.\n`;
+      promptText += `   - *"질문 앞 번호만 입력해도 돼요!"* (사용자에게 친절하게 안내)\n`;
+      promptText += `   - *"다음으로 궁금한 건 뭐니?"*\n`;
+      promptText += `   - 대화를 자연스럽게 이어갈 수 있는 **[예시 질문 3가지]를 번호(1, 2, 3)를 붙여서** 제시해 줘. (사용자가 숫자만 입력해도 대화가 진행되도록 설계해.)\n`;
+
+      navigator.clipboard.writeText(promptText).then(() => {
+        showToast("✨ 프롬프트가 복사되었습니다! 새 창에 붙여넣기 해주세요.");
+        setTimeout(() => {
+            const aiSelector = document.getElementById('ai-selector').value;
+            const url = aiSelector === 'chatgpt' ? 'https://chat.openai.com/' : 'https://gemini.google.com/';
+            window.open(url, '_blank');
+        }, 1200);
+      }).catch(err => {
+        showToast("클립보드 복사에 실패했습니다. 권한을 확인해 주세요.");
+      });
+    }
+  </script>
+</body>
+</html>

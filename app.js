@@ -48,6 +48,19 @@ const posts = [
         iconClass: 'fas fa-film',
         type: 'normal',
         content: '영화 토이스토리를 보고 감상문을 써봅시다.'
+    },
+    {
+        id: 4,
+        title: '역사 대화 AI 프롬프트 생성기',
+        author: '왕관유자쌤',
+        time: '방금 전',
+        subject: '사회',
+        grade: '공통',
+        iconColor: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)',
+        iconClass: 'fas fa-crown',
+        type: 'iframe',
+        url: 'history-prompt/index.html',
+        content: '인공지능(ChatGPT, Gemini)에게 복사-붙여넣기하여 생생한 역사 인물/사건 대화를 시작할 수 있는 완벽한 프롬프트를 자동으로 조립해줍니다!'
     }
 ];
 
@@ -217,6 +230,8 @@ function showPostDetail(post) {
     } else if (post.type === 'video') {
         // We will let createMediaPlayer handle it if it's the main video
         mediaContainer.insertAdjacentHTML('afterbegin', '<div style="padding: 20px; color: #666; font-style: italic;">동영상 자료</div>');
+    } else if (post.type === 'iframe') {
+        mediaContainer.insertAdjacentHTML('afterbegin', `<iframe src="${post.url}" style="width:100%; height:75vh; min-height:650px; border:none; border-radius:12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); background: transparent;"></iframe>`);
     } else {
         mediaContainer.insertAdjacentHTML('afterbegin', '<div style="padding: 40px; color: #666;">콘텐츠 준비 중입니다.</div>');
     }
