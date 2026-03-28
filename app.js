@@ -51,16 +51,16 @@ const posts = [
     },
     {
         id: 4,
-        title: '역사 대화 AI 프롬프트 생성기',
+        title: '역사 속으로 다이빙! 🌊 생생 역사 대화 프롬프트 제너레이터',
         author: '왕관유자쌤',
         time: '방금 전',
         subject: '사회',
         grade: '공통',
         iconColor: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)',
-        iconClass: 'fas fa-crown',
+        iconClass: 'fas fa-history',
         type: 'iframe',
         url: 'history-prompt/index.html',
-        content: '인공지능(ChatGPT, Gemini)에게 복사-붙여넣기하여 생생한 역사 인물/사건 대화를 시작할 수 있는 완벽한 프롬프트를 자동으로 조립해줍니다!'
+        content: '과거의 한 장면으로 들어가 역사의 숨결을 직접 느껴보세요!\n\n- 시대, 인물, 국가, 사건 등 원하는 주제를 마음껏 골라보세요.\n- 역사 속 인물과 실시간으로 대화를 나누며 현장의 생생한 이야기를 들어봅시다.'
     }
 ];
 
