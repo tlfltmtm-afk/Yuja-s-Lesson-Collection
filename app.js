@@ -64,6 +64,11 @@ const floatingAudio = document.getElementById('floating-audio-player');
 
 // Initialize
 function init() {
+    const sidebar = document.querySelector('.sidebar');
+    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+    if (isCollapsed) {
+        sidebar.classList.add('collapsed');
+    }
     renderSubjects();
     renderGrades();
     renderPosts();
@@ -71,6 +76,16 @@ function init() {
 }
 
 function setupEventListeners() {
+    const sidebar = document.querySelector('.sidebar');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    
+    if (toggleBtn) {
+        toggleBtn.onclick = () => {
+            sidebar.classList.toggle('collapsed');
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        };
+    }
+
     backToListBtn.onclick = () => {
         postDetailView.style.display = 'none';
         postListView.style.display = 'block';
@@ -98,7 +113,7 @@ function renderSubjects() {
     subjects.forEach(subject => {
         const li = document.createElement('li');
         li.className = `nav-item ${subject === currentSubject ? 'active' : ''}`;
-        li.innerHTML = `<i class="fas fa-folder"></i> ${subject}`;
+        li.innerHTML = `<i class="fas fa-folder"></i> <span>${subject}</span>`;
         li.onclick = () => {
             currentSubject = subject;
             currentGrade = '전체';
