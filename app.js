@@ -80,10 +80,10 @@ function setupEventListeners() {
     const toggleBtn = document.getElementById('sidebar-toggle');
     
     if (toggleBtn) {
-        toggleBtn.onclick = () => {
+        toggleBtn.addEventListener('click', () => {
             sidebar.classList.toggle('collapsed');
             localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
-        };
+        });
     }
 
     backToListBtn.onclick = () => {
@@ -149,7 +149,9 @@ function renderGrades() {
 function updateActiveStates() {
     currentSubjectTitleEl.textContent = currentSubject;
     document.querySelectorAll('.nav-item').forEach(el => {
-        el.classList.toggle('active', el.textContent.trim() === currentSubject);
+        const span = el.querySelector('span');
+        const text = span ? span.textContent.trim() : el.textContent.trim();
+        el.classList.toggle('active', text === currentSubject);
     });
     document.querySelectorAll('.tab-item').forEach(el => {
         el.classList.toggle('active', el.textContent.trim() === currentGrade);
