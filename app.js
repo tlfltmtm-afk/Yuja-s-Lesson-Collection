@@ -25,32 +25,6 @@ const posts = [
     },
     {
         id: 2,
-        title: '3단원 6차시 문장의 짜임을 생각하며 바르게 읽고 쓰기',
-        author: '에이뽀용지',
-        time: '12분 전',
-        subject: '국어',
-        grade: '3학년',
-        iconColor: 'linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)',
-        iconClass: 'fas fa-book',
-        type: 'video',
-        content: '국어 수업 동영상 자료입니다.',
-        folder: '비폭력대화',
-        video: 'sample_video.mp4'
-    },
-    {
-        id: 3,
-        title: '6_1_2 영화 감상문을 쓰고 고쳐 쓰기 (토이스토리)',
-        author: '입열지마라',
-        time: '7분 전',
-        subject: '국어',
-        grade: '6학년',
-        iconColor: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
-        iconClass: 'fas fa-film',
-        type: 'normal',
-        content: '영화 토이스토리를 보고 감상문을 써봅시다.'
-    },
-    {
-        id: 4,
         title: '역사 속으로 다이빙! 🌊 생생 역사 대화 프롬프트 제너레이터',
         author: '왕관유자쌤',
         time: '방금 전',
@@ -242,12 +216,12 @@ function showPostDetail(post) {
         if (Array.isArray(post.video)) mediaFiles.push(...post.video.map(f => ({ file: f, type: 'video' })));
         else mediaFiles.push({ file: post.video, type: 'video' });
     }
-    
+
     if (post.audio) {
         if (Array.isArray(post.audio)) mediaFiles.push(...post.audio.map(f => ({ file: f, type: 'audio' })));
         else mediaFiles.push({ file: post.audio, type: 'audio' });
     }
-    
+
     if (mediaFiles.length > 0) {
         floatingAudio.style.display = 'flex';
         floatingAudio.style.flexDirection = 'column';
@@ -309,10 +283,10 @@ function updateSlideView() {
 function createMediaPlayer(fileName, type, folder) {
     const playerWrapper = document.createElement('div');
     playerWrapper.className = 'audio-player small';
-    
+
     const mediaPath = `${folder}/${fileName}`;
     const mediaTag = type === 'video' ? 'video' : 'audio';
-    
+
     // For video, we might want to see it if it's not the main one
     const videoStyle = type === 'video' ? 'width: 100%; max-height: 200px; background: #000; margin-bottom: 10px; display: block;' : 'display: none;';
 
@@ -370,7 +344,7 @@ function createMediaPlayer(fileName, type, folder) {
     const expandBtn = playerWrapper.querySelector('.expand-toggle');
     const seekPrev = playerWrapper.querySelector('.prev-10');
     const seekNext = playerWrapper.querySelector('.next-10');
-    
+
     // Volume Control Elements
     const volumeBtn = playerWrapper.querySelector('.volume-btn');
     const volumePopup = playerWrapper.querySelector('.volume-popup');
